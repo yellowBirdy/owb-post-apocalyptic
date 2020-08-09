@@ -1,14 +1,26 @@
 # Gr #17 OWB Capstone Project
 The post apocalyptic, survival game: They're coming.
 
-# Getting started
+# Dependencies
 
 * `yarn install`
 * `npm install -g @onflow/dev-wallet`
 
-Dev wallet repo: https://github.com/MaxStalker/flow-shadowrun-game-ui
+And flow CLI for Linux/MacOS
+* `sh -ci "$(curl -fsSL https://storage.googleapis.com/flow-cli/install.sh)"`
+and Win
+* `iex "& { $(irm 'https://storage.googleapis.com/flow-cli/install.ps1') }"`
+
+Dev wallet home: https://github.com/onflow/flow-js-sdk/tree/master/packages/dev-wallet
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+# Dev run
+
+    yarn run flow:emulator
+    yarn run flow:dev-wallet
+    yarn start
+    
 
 ## Available Scripts
 

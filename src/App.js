@@ -3,7 +3,7 @@ import * as sdk from "@onflow/sdk"
 import * as fcl from "@onflow/fcl"
 import * as types from "@onflow/types"
 
-import {Login, Logout} from "./components/buttons"
+import {Login, Logout, DeployStandard} from "./components/buttons"
 
 //import './App.css';
 
@@ -27,6 +27,7 @@ function App() {
       <div className="interactions">
         <Login />
         <Logout />
+        <DeployStandard />
       </div>
     </div>
   );

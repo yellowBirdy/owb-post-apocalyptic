@@ -3,6 +3,8 @@ import * as sdk from "@onflow/sdk"
 import * as fcl from "@onflow/fcl"
 import * as types from "@onflow/types"
 
+import {Login, Logout} from "./components/buttons"
+
 //import './App.css';
 
 
@@ -23,8 +25,8 @@ function App() {
         </p>
       </header>
       <div className="interactions">
-        <button onClick={fcl.authenticate}>Log in</button>    
-        <button onClick={()=>{console.log('logging out'); fcl.unauthenticate()}}>Log out</button>          
+        <Login />
+        <Logout />
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ const deployNFTStandardContract = async () => {
   
     fcl.tx(deployTx).subscribe(txStatus => {
       if (fcl.tx.isExecuted(txStatus)) {
-        console.log("NFT Standard Contract was deployed");
+        console.log("NFT Standard Contract has been deployed");
       }
     });
   };

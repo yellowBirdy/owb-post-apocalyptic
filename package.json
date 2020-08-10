@@ -1,0 +1,39 @@
+{
+  "name": "owb-post-apocalyptic",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@onflow/fcl": "0.0.46",
+    "@onflow/sdk": "0.0.30",
+    "@onflow/types": "0.0.3",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-scripts": "3.4.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "flow:emulator": "flow emulator start -v --http-port 8080 -p 3570",
+    "flow:dev-wallet": "PK=7a411e752f62da3bd0945be94ebd809c040afeffc8b26f9e4c6ff162b6a28796 && fcl-wallet"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

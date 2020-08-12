@@ -1,6 +1,5 @@
 //import NonFungibleToken from 0x01cf0e2f2f715450
 import NonFungibleToken from 0xNFTStandardAddress
-
 import ExampleNFT from 0xNFTAddress
 
 transaction (classId: UInt32, targetAddress: Address) {

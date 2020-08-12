@@ -16,7 +16,7 @@ const mint = async (classId, targetAddress) => {
     })
     const tx = do_mint([
         fcl.arg(2, types.UInt32),
-        fcl.arg("0x01cf0e2f2f715450", types.Address),
+        fcl.arg(NFTAddress, types.Address), //TODO: pass targetAddress here
       ])
 
 }   

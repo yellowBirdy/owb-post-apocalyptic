@@ -3,7 +3,7 @@ import * as sdk from "@onflow/sdk"
 import * as fcl from "@onflow/fcl"
 import * as types from "@onflow/types"
 
-import {Login, Logout, DeployStandard, DeployNFT, Mint} from "./components/buttons"
+import {Login, Logout, DeployStandard, DeployNFT, Mint, Install} from "./components/buttons"
 
 //import './App.css';
 
@@ -37,6 +37,7 @@ function App() {
         </div>
         <div className="transactions">
           <p>Trans</p>
+          <Install />
           <Mint />
         </div>
         <div className="scripts">

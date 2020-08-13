@@ -1,1 +1,1 @@
-export {default as ShowCollection} from "./ShowCollection"
+export {default as ShowCollection} from "./ShowCollection.jsx"

@@ -6,7 +6,7 @@ import ExampleNFT from 0xNFTAddress
 // This transaction returns an array of all the nft ids in the collection
 
 pub fun main(): [UInt64] {
-    let acct = getAccount(0x179b6b1cb6755e31)
+    let acct = getAccount(0xcurrentAddress)
     let collectionRef = acct.getCapability(/public/NFTCollection)!.borrow<&{NonFungibleToken.CollectionPublic}>()
         ?? panic("Could not borrow capability from public collection")
     log(collectionRef.getIDs())

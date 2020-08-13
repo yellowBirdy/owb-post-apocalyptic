@@ -4,9 +4,12 @@ import * as fcl from "@onflow/fcl"
 import * as types from "@onflow/types"
 
 import {Login, Logout, DeployStandard, DeployNFT, Mint, Install} from "./components/buttons"
-
+import {ShowCollection} from  "./components/buttons/script"
 //import './App.css';
 
+window.fcl = fcl
+window.sdk = sdk
+window.types = types
 
 fcl.config()
   .put("challenge.handshake", "http://localhost:8701/flow/authenticate")
@@ -42,7 +45,7 @@ function App() {
         </div>
         <div className="scripts">
           <p>Scripts</p>
-
+          <ShowCollection />
         </div>
       </div>
     </div>

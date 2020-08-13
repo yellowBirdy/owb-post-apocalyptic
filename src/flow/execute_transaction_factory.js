@@ -1,6 +1,5 @@
 import * as fcl from "@onflow/fcl";
 import * as sdk from "@onflow/sdk";
-import * as types from "@onflow/types";
 import loadCode from "../utils/prepare_cadence_code";
 
 export default async (url, match) => {

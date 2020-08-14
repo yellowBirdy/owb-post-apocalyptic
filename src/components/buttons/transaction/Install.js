@@ -1,7 +1,7 @@
 import React from "react"
 
-import installUrl from "../../cadence/transactions/install.cdc";
-import execute_transaction_factory from "../../flow/execute_transaction_factory"
+import installUrl from "../../../cadence/transactions/install.cdc";
+import execute_transaction_factory from "../../../flow/execute_transaction_factory"
 
 
 const install = async () => {

@@ -1,7 +1,7 @@
 import React from 'react'
 import * as fcl from "@onflow/fcl"
-import deployContract from "../../flow/deploy_contract"
-import standardContractUrl from "../../cadence/contracts/ExampleNFT.cdc"
+import deployContract from "../../../flow/deploy_contract"
+import standardContractUrl from "../../../cadence/contracts/ExampleNFT.cdc"
 
 const NFTStandardAddress = "0x01cf0e2f2f715450"
 

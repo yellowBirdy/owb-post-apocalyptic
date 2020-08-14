@@ -2,8 +2,8 @@ import React from "react"
 import * as fcl from "@onflow/fcl"
 import * as types from "@onflow/types"
 
-import mintUrl from "../../cadence/transactions/mint.cdc";
-import execute_transaction_factory from "../../flow/execute_transaction_factory"
+import mintUrl from "../../../cadence/transactions/mint.cdc";
+import execute_transaction_factory from "../../../flow/execute_transaction_factory"
 
 
 const mint = async (classId, targetAddress) => {

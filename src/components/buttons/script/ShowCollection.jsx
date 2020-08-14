@@ -9,12 +9,12 @@ const get_ids = async () => {
     const NFTStandardAddress = "0x01cf0e2f2f715450"
         , NFTAddress = "0x179b6b1cb6755e31"
         , userData = await fcl.currentUser().snapshot()
-        , currentAddress = `0x${userData.addr}`
+        , targetAddress = `0x${userData.addr}`
     const do_get_ids = await execute_script_factory(get_idslUrl, {
-        query: /(0xNFTStandardAddress|0xNFTAddress|0xcurrentAddress)/g,
+        query: /(0xNFTStandardAddress|0xNFTAddress|0xtargetAddress)/g,
         "0xNFTStandardAddress": NFTStandardAddress,
         "0xNFTAddress": NFTAddress,
-        "0xcurrentAddress": currentAddress
+        "0xtargetAddress": targetAddress
     }, 
     true)
     //return await do_get_ids()
@@ -25,7 +25,7 @@ const get_ids = async () => {
 
 export default () => {
     const [NFT_ids, setNFT_ids] = useState([])
-    const [currentAddress, setCurrentAddress] = useState('No user')
+    const [targetAddress, setCurrentAddress] = useState('No user')
     
     useEffect( () => {
         async function getCurrentAddress () {
@@ -37,6 +37,6 @@ export default () => {
 
     return <div>
         <button onClick={async ()=>setNFT_ids(await get_ids())}>Show Collection</button>
-            <p>User {currentAddress} posses following tokens: {NFT_ids.join(", ")} </p>
+            <p>User {targetAddress} posses following tokens: {NFT_ids.join(", ")} </p>
     </div>
 }

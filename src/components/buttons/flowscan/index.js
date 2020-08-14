@@ -1,0 +1,1 @@
+export {default as LatestBlock} from "./LatestBlock.jsx"

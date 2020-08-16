@@ -1,13 +1,13 @@
 //import NonFungibleToken from 0x01cf0e2f2f715450
 import NonFungibleToken from 0xNFTStandardAddress
-import ExampleNFT from 0xNFTAddress
+import SurvivalNFT from 0xNFTAddress
 
 transaction (classId: UInt32, targetAddress: Address) {
 
-    let minter: &ExampleNFT.NFTMinter
+    let minter: &SurvivalNFT.NFTMinter
     prepare (signer: AuthAccount) {
         // check if admin account
-        self.minter = signer.borrow<&ExampleNFT.NFTMinter>(from:/storage/NFTMinter) ?? 
+        self.minter = signer.borrow<&SurvivalNFT.NFTMinter>(from:/storage/NFTMinter) ?? 
             panic("Can't borrow minter, trying to mint from nonadmin account.")
     }
 
@@ -18,7 +18,7 @@ transaction (classId: UInt32, targetAddress: Address) {
 
         self.minter.mintNFT(recipient: target)
         log("Total Supply:")
-        log(ExampleNFT.totalSupply)
+        log(SurvivalNFT.totalSupply)
     }
 
 }

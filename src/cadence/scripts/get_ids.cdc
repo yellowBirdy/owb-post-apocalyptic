@@ -1,7 +1,7 @@
 //import NonFungibleToken from 0x01cf0e2f2f715450
 import NonFungibleToken from 0xNFTStandardAddress
 
-import ExampleNFT from 0xNFTAddress
+import SurvivalNFT from 0xNFTAddress
 
 // This transaction returns an array of all the nft ids in the collection
 

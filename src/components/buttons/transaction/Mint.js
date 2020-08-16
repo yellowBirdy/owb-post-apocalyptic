@@ -17,10 +17,16 @@ const mint = async ({classId = 2, targetAddress}) => {
         "0xNFTStandardAddress": NFTStandardAddress,
         "0xNFTAddress": NFTAddress
     })
-    const tx = do_mint([
+    const mintTx = await do_mint([
         fcl.arg(2, types.UInt32),
         fcl.arg(targetAddress, types.Address), //TODO: pass targetAddress here
-      ])
+    ])
+    fcl.tx(mintTx).subscribe(txStatus => {
+        if (fcl.tx.isExecuted(txStatus)) {
+          console.log("SurvivalNFT has been minted for: "+targetAddress);
+        }
+    });
+      
 }   
 
 

@@ -1,20 +1,14 @@
 import React, {useState} from 'react'
-import * as fcl from "@onflow/fcl"
 
+import {getLatestBlock} from "../../../flow/actions"
 
 
 export default () => { 
     const [blockData, setBlockData] = useState('NA')
 
-    const getLatestBlock = async () => {
-        const response = await fcl.send([
-            fcl.getLatestBlock()
-        ])
-        setBlockData(await fcl.decode(response))
-    }
-
+    const fetchLatestBlock = async () => setBlockData(await getLatestBlock())
     return (<div className="latestBlock">
-        <button onClick={getLatestBlock}>Get letest block</button>
-        <p>Latest Block Data: {blockData && JSON.stringify(blockData, null, 4)}</p>
+        <button onClick={fetchLatestBlock}>Get letest block</button>
+        <p>Latest Block Data: {blockData && JSON.stringify(blockData, null, 4 )}</p>
     </div>)
 }

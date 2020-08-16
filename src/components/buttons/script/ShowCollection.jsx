@@ -10,13 +10,6 @@ export default () => {
     
 
     const getAccIds = () => getIds({targetAddress})
-    /*useEffect( () => {
-        async function getCurrentAddress () {
-            const userData = await fcl.currentUser().snapshot()
-            setTargetAddress(`0x${userData.addr}`)
-        }
-        getCurrentAddress()
-    }, [NFT_ids])*/
 
     return <div>
         <button onClick={async ()=>setNFT_ids(await getAccIds())}>Show Collection</button>

@@ -1,20 +1,12 @@
 import React, {useState} from 'react'
-import * as fcl from "@onflow/fcl"
 
-//TODO: find out when removed and how to replace it
+import {getAccData} from '../../../flow/actions'
 
 
 export default () => { 
     const [address, setAddress] = useState('')
     const [accountData, setAccountData] = useState(null)
 
-    //TODO: move it to utils
-    const getAccData = async (address) => {
-        const response = await fcl.send([
-            fcl.getAccount(address)
-        ])
-        return (await fcl.decode(response))
-    }
 
     const fetchAccData = async () => {
         setAccountData(await getAccData(address))

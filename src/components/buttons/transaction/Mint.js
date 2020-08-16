@@ -5,6 +5,9 @@ import * as types from "@onflow/types"
 import mintUrl from "../../../cadence/transactions/mint.cdc";
 import execute_transaction_factory from "../../../flow/execute_transaction_factory"
 
+import {SelectAccount} from "../../subcomponents"
+
+
 //TODO: extract mint for reuse into transaction handlers
 const mint = async ({classId = 2, targetAddress}) => {
     const NFTStandardAddress = "0x01cf0e2f2f715450"
@@ -23,7 +26,7 @@ const mint = async ({classId = 2, targetAddress}) => {
 
 
 export default () => {
-    const [selectedAccount, setSelectedAccount] = useState('0x179b6b1cb6755e31')
+    const [selectedAccount, setSelectedAccount] = useState("")
 
     const mintSelected = async () => {
         mint({targetAddress: selectedAccount});
@@ -31,9 +34,6 @@ export default () => {
 
     return (<div className="mintForm">
         <button onClick={mintSelected}>Mint</button>
-        <select onChange={e=>{setSelectedAccount(e.target.value)}} value={selectedAccount}>
-            <option value="0x179b6b1cb6755e31">Contract Acc</option>
-            <option value="0xf3fcd2c1a78f5eee">Some Guy or Gal</option>
-        </select>
+        <SelectAccount onChange={e=>setSelectedAccount(e.target.value)} value={selectedAccount} />
     </div>)
 }

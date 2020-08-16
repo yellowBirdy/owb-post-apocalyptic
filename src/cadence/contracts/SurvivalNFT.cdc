@@ -9,10 +9,16 @@ import NonFungibleToken from 0xNFTStandardAddress
 pub contract SurvivalNFT: NonFungibleToken {
 
     pub var totalSupply: UInt64
+    pub var formCount: Uint32
+    pub var combinationCount: Uint32
 
-    pub event ContractInitialized()
+    pub event ContractInitialized( )
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
+    pub event FormCreated(id: Uint32, fields: {String: String})
+    pub event CombinationCreated(id: Uint32, ingredeints: [Uint32], products:[Uint32])
+
+    
 
     pub resource NFT: NonFungibleToken.INFT {
         pub let id: UInt64
@@ -74,6 +80,48 @@ pub contract SurvivalNFT: NonFungibleToken {
         }
     }
 
+    pub struct Form {
+
+        pub let id: Uint32
+        put let fields: {String: String}
+
+        init(fields: {String: String}) {
+            pre {
+                fields.length > 0: "New Form fields can't be empty"
+            }
+            self.id = formCount + Uint32(1)
+            SurvivalNFT.formCount = formCount + Uint32(1)
+
+            self.fields = fields
+
+            emit FormCreated(id: self.id, fields: self.fields)
+        }
+    }
+    pub struct Combination {
+
+        pub let id: Uint32
+        pub let ingredeints: [Uint32] // array of consumable form ids
+        pub let products: [Uint32] // array of product form ids
+        //TODO: add probability distribution for the products
+
+        init(ingredeints: [Uint32], product: [Uint32]) {
+            pre {
+                ingredeints.length > 0: "New Combination ingredients can't be empty"
+                products.length > 0: "New Combination products can't be empty"
+            }
+            self.id = combinationCount + Uint32(1)
+            SurvivalNFT.combinationCount = combinationCount + Uint32(1)
+
+            emit CombinationCreated(id: self.id, ingredeints: self.ingredeints, products: self.products)
+
+        }
+    }
+
+    // TODO: MintCombination function 
+    // would rquire a multisig - not possible in fcl now (doublecheck)
+    // or somekind of a marketplace maybe with a whitelist 
+
+
     // public function that anyone can call to create a new empty collection
     pub fun createEmptyCollection(): @NonFungibleToken.Collection {
         return <- create Collection()
@@ -120,7 +168,9 @@ pub contract SurvivalNFT: NonFungibleToken {
 
 	init() {
         // Initialize the total supply
-        self.totalSupply = 0
+        self.totalSupply      = 0
+        self.formCount        = 0
+        self.combinationCount = 0
 
         // Create a Collection resource and save it to storage
         if self.account.load<&Collection>(from: /storage/NFTCollection) != nil  {

@@ -12,6 +12,10 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub var formCount: UInt32
     pub var combinationCount: UInt32
 
+    pub var forms: @{UInt32: Form}
+    pub var formData: {UInt32: FormData}
+    pub var combinations: {UInt32: Combination}
+
     pub event ContractInitialized( )
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
@@ -98,10 +102,8 @@ pub contract SurvivalNFT: NonFungibleToken {
             self.name = name
 
             //TODO crate a new FormData in a corresponding array which needs to be declared on the contract level
-
+            
             emit FormCreated(id: self.id, name: self.name)
-
-
         }
     }
 
@@ -111,7 +113,7 @@ pub contract SurvivalNFT: NonFungibleToken {
         pub let id: UInt32
         pub let fields: {String: String}
 
-        init(fields: {String: String}, id: UInt32) {
+        init(id: UInt32, fields: {String: String}) {
             pre {
                 fields.length > 0: "New Form fields can't be empty"
                 id == SurvivalNFT.formCount: "New Form Data can only be created for newly created Form"
@@ -123,6 +125,9 @@ pub contract SurvivalNFT: NonFungibleToken {
             emit FormDataCreated(id: self.id, fields: self.fields)
         }
     }
+
+
+
     pub struct Combination {
 
         pub let id: UInt32
@@ -159,7 +164,7 @@ pub contract SurvivalNFT: NonFungibleToken {
     // Resource that an admin or something similar would own to be
     // able to mint new NFTs
     //
-	pub resource NFTMinter {
+	pub resource NFTAdmin {
 
 		// mintNFT mints a new NFT with a new ID
 		// and deposit it in the recipients collection using their collection reference
@@ -201,27 +206,28 @@ pub contract SurvivalNFT: NonFungibleToken {
         self.formCount        = 0
         self.combinationCount = 0
 
+        self.forms        <- {}
+        self.formData     =  {}
+        self.combinations =  {}
+
         // Create a Collection resource and save it to storage
-        if self.account.load<&Collection>(from: /storage/NFTCollection) != nil  {
+       /*  if self.account.load<&Collection>(from: /storage/NFTCollection) != nil  {
             let collection <- create Collection()
             self.account.save(<-collection, to: /storage/NFTCollection)
                     // create a public capability for the collection
 
-            self.account.link<&{NonFungibleToken.CollectionPublic}>(
-            /public/NFTCollection,
-            target: /storage/NFTCollection
-)
+            self.account.link<&{NonFungibleToken.CollectionPublic}>(/public/NFTCollection, target: /storage/NFTCollection)
         
         }
+        */
+
+        // Create an Admin resource and save it to storage
+        let oldAdmin <- self.account.load<@NFTAdmin>(from:/storage/NFTAdmin)
+        destroy oldAdmin
 
 
-        // Create a Minter resource and save it to storage
-        let oldMinter <- self.account.load<@NFTMinter>(from:/storage/NFTMinter)
-        destroy oldMinter
-
-
-        let minter <- create NFTMinter()
-        self.account.save(<-minter, to: /storage/NFTMinter)
+        let admin <- create NFTAdmin()
+        self.account.save(<-admin, to: /storage/NFTAdmin)
 
         emit ContractInitialized()
 	}

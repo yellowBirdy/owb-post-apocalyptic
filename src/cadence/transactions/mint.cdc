@@ -4,19 +4,18 @@ import SurvivalNFT from 0xNFTAddress
 
 transaction (classId: UInt32, targetAddress: Address) {
 
-    let minter: &SurvivalNFT.NFTMinter
+    let minter: &SurvivalNFT.NFTAdmin
     prepare (signer: AuthAccount) {
         // check if admin account
-        self.minter = signer.borrow<&SurvivalNFT.NFTMinter>(from:/storage/NFTMinter) ?? 
-            panic("Can't borrow minter, trying to mint from nonadmin account.")
+        self.admin = signer.borrow<&SurvivalNFT.NFTAdmin>(from:/storage/NFTAdmin) ?? 
+            panic("Can't borrow admin, trying to mint from nonadmin account.")
     }
 
     execute {
-        //let target = getAccount(0x179b6b1cb6755e31).getCapability(/public/NFTCollection)!
         let target = getAccount(targetAddress).getCapability(/public/NFTCollection)!
             .borrow<&{NonFungibleToken.CollectionPublic}>()!
 
-        self.minter.mintNFT(recipient: target)
+        self.admin.mintNFT(recipient: target)
         log("Total Supply:")
         log(SurvivalNFT.totalSupply)
     }

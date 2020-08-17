@@ -15,7 +15,11 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub event ContractInitialized( )
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
-    pub event FormCreated(id: UInt32, fields: {String: String})
+    pub event Minted(id: UInt64)
+            
+    pub event FormCreated(id: UInt32, name: String)
+    pub event FormDataCreated(id: UInt32, fields: {String: String})
+    
     pub event CombinationCreated(id: UInt32, ingredients: [UInt32], products:[UInt32])
 
     
@@ -79,22 +83,44 @@ pub contract SurvivalNFT: NonFungibleToken {
             destroy self.ownedNFTs
         }
     }
+    pub resource Form {
+        //this is a "template" resource  holding reference to the FromData and 
+        // acting as a template for the actual nfts
+        pub let id: UInt32
+        pub let name: String
+        
+        init(name: String, fields: {String: String}) {
+            pre {
+                name.length > 0: "New Form has to have a non empty name" //TODO: enforec uniqueness
+            }
+            self.id = SurvivalNFT.formCount + UInt32(1)
+            SurvivalNFT.formCount = SurvivalNFT.formCount + UInt32(1)
+            self.name = name
 
-    pub struct Form {
+            //TODO crate a new FormData in a corresponding array which needs to be declared on the contract level
+
+            emit FormCreated(id: self.id, name: self.name)
+
+
+        }
+    }
+
+
+    pub struct FormData {
 
         pub let id: UInt32
         pub let fields: {String: String}
 
-        init(fields: {String: String}) {
+        init(fields: {String: String}, id: UInt32) {
             pre {
                 fields.length > 0: "New Form fields can't be empty"
+                id == SurvivalNFT.formCount: "New Form Data can only be created for newly created Form"
             }
-            self.id = SurvivalNFT.formCount + UInt32(1)
-            SurvivalNFT.formCount = SurvivalNFT.formCount + UInt32(1)
+            self.id = id
 
             self.fields = fields
 
-            emit FormCreated(id: self.id, fields: self.fields)
+            emit FormDataCreated(id: self.id, fields: self.fields)
         }
     }
     pub struct Combination {

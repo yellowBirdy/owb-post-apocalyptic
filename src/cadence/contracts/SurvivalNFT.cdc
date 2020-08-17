@@ -9,14 +9,14 @@ import NonFungibleToken from 0xNFTStandardAddress
 pub contract SurvivalNFT: NonFungibleToken {
 
     pub var totalSupply: UInt64
-    pub var formCount: Uint32
-    pub var combinationCount: Uint32
+    pub var formCount: UInt32
+    pub var combinationCount: UInt32
 
     pub event ContractInitialized( )
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
-    pub event FormCreated(id: Uint32, fields: {String: String})
-    pub event CombinationCreated(id: Uint32, ingredeints: [Uint32], products:[Uint32])
+    pub event FormCreated(id: UInt32, fields: {String: String})
+    pub event CombinationCreated(id: UInt32, ingredients: [UInt32], products:[UInt32])
 
     
 
@@ -82,15 +82,15 @@ pub contract SurvivalNFT: NonFungibleToken {
 
     pub struct Form {
 
-        pub let id: Uint32
-        put let fields: {String: String}
+        pub let id: UInt32
+        pub let fields: {String: String}
 
         init(fields: {String: String}) {
             pre {
                 fields.length > 0: "New Form fields can't be empty"
             }
-            self.id = formCount + Uint32(1)
-            SurvivalNFT.formCount = formCount + Uint32(1)
+            self.id = SurvivalNFT.formCount + UInt32(1)
+            SurvivalNFT.formCount = SurvivalNFT.formCount + UInt32(1)
 
             self.fields = fields
 
@@ -99,20 +99,23 @@ pub contract SurvivalNFT: NonFungibleToken {
     }
     pub struct Combination {
 
-        pub let id: Uint32
-        pub let ingredeints: [Uint32] // array of consumable form ids
-        pub let products: [Uint32] // array of product form ids
+        pub let id: UInt32
+        pub let ingredients: [UInt32] // array of consumable form ids
+        pub let products: [UInt32] // array of product form ids
         //TODO: add probability distribution for the products
 
-        init(ingredeints: [Uint32], product: [Uint32]) {
+        init(ingredients: [UInt32], products: [UInt32]) {
             pre {
-                ingredeints.length > 0: "New Combination ingredients can't be empty"
+                ingredients.length > 0: "New Combination ingredients can't be empty"
                 products.length > 0: "New Combination products can't be empty"
             }
-            self.id = combinationCount + Uint32(1)
-            SurvivalNFT.combinationCount = combinationCount + Uint32(1)
+            self.id = SurvivalNFT.combinationCount + UInt32(1)
+            SurvivalNFT.combinationCount = SurvivalNFT.combinationCount + UInt32(1)
 
-            emit CombinationCreated(id: self.id, ingredeints: self.ingredeints, products: self.products)
+            self.ingredients = ingredients
+            self.products = products 
+
+            emit CombinationCreated(id: self.id, ingredients: self.ingredients, products: self.products)
 
         }
     }

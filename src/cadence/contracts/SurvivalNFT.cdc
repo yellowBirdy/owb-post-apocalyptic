@@ -12,9 +12,9 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub var formCount: UInt32
     pub var combinationCount: UInt32
 
-    pub var forms: @{UInt32: Form}
-    pub var formData: {UInt32: FormData}
-    pub var combinations: {UInt32: Combination}
+    pub var forms: @[Form]
+    pub var formData: [FormData]
+    pub var combinations: [Combination]
 
     pub event ContractInitialized( )
     pub event Withdraw(id: UInt64, from: Address?)
@@ -177,8 +177,9 @@ pub contract SurvivalNFT: NonFungibleToken {
 			recipient.deposit(token: <-newNFT)
 
             SurvivalNFT.totalSupply = SurvivalNFT.totalSupply + UInt64(1)
-            //double generate every 5th token
-            /*if SurvivalNFT.totalSupply % UInt64(5) == UInt64(0)   {
+           
+            //double generate every 10th token on average
+            if unsafeRandom() % UInt64(10) == UInt64(0)   {
                 var newerNFT <- create NFT(initID: SurvivalNFT.totalSupply)
 
 			// deposit it in the recipient's account using their reference
@@ -186,18 +187,13 @@ pub contract SurvivalNFT: NonFungibleToken {
 
                 SurvivalNFT.totalSupply = SurvivalNFT.totalSupply + UInt64(1)
             }
-            */
-            //double generate every 5th token on average
-            if unsafeRandom() % UInt64(5) == UInt64(0)   {
-                var newerNFT <- create NFT(initID: SurvivalNFT.totalSupply)
-
-			// deposit it in the recipient's account using their reference
-			    recipient.deposit(token: <-newerNFT)
-
-                SurvivalNFT.totalSupply = SurvivalNFT.totalSupply + UInt64(1)
-            }
-
 		}
+        access(self) fun crateForm(name: String, fields: {String: String}) {
+
+        }
+        access(self) fun crateCombination () {
+
+        }
 	}
 
 	init() {
@@ -206,9 +202,9 @@ pub contract SurvivalNFT: NonFungibleToken {
         self.formCount        = 0
         self.combinationCount = 0
 
-        self.forms        <- {}
-        self.formData     =  {}
-        self.combinations =  {}
+        self.forms        <- []
+        self.formData     =  []
+        self.combinations =  []
 
         // Create a Collection resource and save it to storage
        /*  if self.account.load<&Collection>(from: /storage/NFTCollection) != nil  {

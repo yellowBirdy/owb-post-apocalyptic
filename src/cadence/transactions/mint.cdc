@@ -4,12 +4,13 @@ import SurvivalNFT from 0xNFTAddress
 
 transaction (classId: UInt32, targetAddress: Address) {
 
-    let minter: &SurvivalNFT.NFTAdmin
+    let admin: &SurvivalNFT.NFTAdmin
     prepare (signer: AuthAccount) {
         // check if admin account
         self.admin = signer.borrow<&SurvivalNFT.NFTAdmin>(from:/storage/NFTAdmin) ?? 
             panic("Can't borrow admin, trying to mint from nonadmin account.")
     }
+
 
     execute {
         let target = getAccount(targetAddress).getCapability(/public/NFTCollection)!

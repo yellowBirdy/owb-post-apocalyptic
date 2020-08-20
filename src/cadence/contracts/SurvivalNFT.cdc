@@ -8,34 +8,48 @@ import NonFungibleToken from 0xNFTStandardAddress
 
 pub contract SurvivalNFT: NonFungibleToken {
 
+    pub var version: UInt16
     pub var totalSupply: UInt64
     pub var formCount: UInt32
     pub var combinationCount: UInt32
 
     pub var forms: @[Form]
+    pub var formNameToId: {String: UInt32}
     pub var formData: [FormData]
     pub var combinations: [Combination]
+    pub var combinationNameToId: {String: UInt32}
 
-    pub event ContractInitialized( )
+
+    pub event ContractInitialized()
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
-    pub event Minted(id: UInt64)
+    pub event Minted(id: UInt64, formId: UInt32)
             
     pub event FormCreated(id: UInt32, name: String)
     pub event FormDataCreated(id: UInt32, fields: {String: String})
     
-    pub event CombinationCreated(id: UInt32, ingredients: [UInt32], products:[UInt32])
+    pub event CombinationCreated(id: UInt32, ingredients: [UInt32], products: [UInt32])
 
     
 
     pub resource NFT: NonFungibleToken.INFT {
         pub let id: UInt64
+        pub let contractVersion: UInt16
 
-        pub var metadata: {String: String}
+        //TODO: Enforce nontransferable and consumable resources
 
-        init(initID: UInt64) {
-            self.id = initID
-            self.metadata = {}
+        pub let formId: UInt32
+
+        init(formId : UInt32) {
+            pre {
+                SurvivalNFT.forms.length > Int(formId): "Can't mint an NFT from nonexisting form"
+            }
+            self.contractVersion = SurvivalNFT.version
+            self.id = SurvivalNFT.totalSupply
+            self.formId = formId
+            SurvivalNFT.totalSupply = SurvivalNFT.totalSupply + UInt64(1)
+
+            emit Minted(id: self.id, formId: self.formId)
         }
     }
 
@@ -100,7 +114,6 @@ pub contract SurvivalNFT: NonFungibleToken {
             self.id = SurvivalNFT.formCount + UInt32(1)
             SurvivalNFT.formCount = SurvivalNFT.formCount + UInt32(1)
             self.name = name
-
             //TODO crate a new FormData in a corresponding array which needs to be declared on the contract level
             
             emit FormCreated(id: self.id, name: self.name)
@@ -171,27 +184,34 @@ pub contract SurvivalNFT: NonFungibleToken {
 		pub fun mintNFT(recipient: &{NonFungibleToken.CollectionPublic}) {
 
 			// create a new NFT
-			var newNFT <- create NFT(initID: SurvivalNFT.totalSupply)
+            var formId: UInt32 = 1
+
+			var newNFT <- create NFT(formId: formId)
 
 			// deposit it in the recipient's account using their reference
 			recipient.deposit(token: <-newNFT)
 
-            SurvivalNFT.totalSupply = SurvivalNFT.totalSupply + UInt64(1)
            
             //double generate every 10th token on average
             if unsafeRandom() % UInt64(10) == UInt64(0)   {
-                var newerNFT <- create NFT(initID: SurvivalNFT.totalSupply)
+                var newerNFT <- create NFT(formId: formId)
 
 			// deposit it in the recipient's account using their reference
 			    recipient.deposit(token: <-newerNFT)
 
-                SurvivalNFT.totalSupply = SurvivalNFT.totalSupply + UInt64(1)
             }
 		}
-        access(self) fun crateForm(name: String, fields: {String: String}) {
-
+        pub fun mintForm(name: String, fields: {String: String}) {
+            pre {
+                //TODO: enforce unique name
+                name.length > 0: "A form has to have a name"
+                fields.length > 0: "Form has to have at least one field"
+            }
+            let newForm <-create Form(name: name, fields: fields)
+            SurvivalNFT.formNameToId[name] = newForm.id
+            SurvivalNFT.forms.append(<-newForm)
         }
-        access(self) fun crateCombination () {
+        pub fun crateCombination () {
 
         }
 	}
@@ -201,21 +221,15 @@ pub contract SurvivalNFT: NonFungibleToken {
         self.totalSupply      = 0
         self.formCount        = 0
         self.combinationCount = 0
+        self.version          = 0 //remember to increment in code or find a way to remember the totalSupply etc
+                                  // between contract ver deployments, perhaps in a resource
 
         self.forms        <- []
         self.formData     =  []
+        self.formNameToId =  {}
         self.combinations =  []
+        self.combinationNameToId = {}
 
-        // Create a Collection resource and save it to storage
-       /*  if self.account.load<&Collection>(from: /storage/NFTCollection) != nil  {
-            let collection <- create Collection()
-            self.account.save(<-collection, to: /storage/NFTCollection)
-                    // create a public capability for the collection
-
-            self.account.link<&{NonFungibleToken.CollectionPublic}>(/public/NFTCollection, target: /storage/NFTCollection)
-        
-        }
-        */
 
         // Create an Admin resource and save it to storage
         let oldAdmin <- self.account.load<@NFTAdmin>(from:/storage/NFTAdmin)
@@ -223,7 +237,17 @@ pub contract SurvivalNFT: NonFungibleToken {
 
 
         let admin <- create NFTAdmin()
+
+        //mint initial form
+        let fields: {String: String} = {
+            "durability": "ideatic", 
+            "power_level": "9001",
+            "transferable": "F"
+            }
+        admin.mintForm(name: "Alpha-Omega NRG Cell", fields: fields )
+
         self.account.save(<-admin, to: /storage/NFTAdmin)
+
 
         emit ContractInitialized()
 	}

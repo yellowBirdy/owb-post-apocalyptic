@@ -184,7 +184,7 @@ pub contract SurvivalNFT: NonFungibleToken {
 		pub fun mintNFT(recipient: &{NonFungibleToken.CollectionPublic}) {
 
 			// create a new NFT
-            var formId: UInt32 = 1
+            var formId: UInt32 = 0
 
 			var newNFT <- create NFT(formId: formId)
 
@@ -209,13 +209,44 @@ pub contract SurvivalNFT: NonFungibleToken {
             }
             let newForm <-create Form(name: name, fields: fields)
             SurvivalNFT.formNameToId[name] = newForm.id
+            SurvivalNFT.formData.append(FormData(id: newForm.id, fields: fields))
+
             SurvivalNFT.forms.append(<-newForm)
         }
         pub fun crateCombination () {
 
         }
 	}
-
+    
+    // getFormData returns all the fields associated with a specific Form
+    // 
+    // Parameters: formId: The id of the Form that is being searched
+    //
+    // Returns: The metadata as a String to String mapping optional
+    pub fun getFormData(_ formId: UInt32): {String: String} {
+        pre {
+            formId < SurvivalNFT.formCount: "Trying to access nonexisting form "
+        }
+        return self.formData[formId].fields
+    }
+    // getFormDataByField returns the metadata associated with a 
+    //                        specific field of the metadata
+    //                        Ex: field: "power_level" will return something
+    //                        like "9001"
+    // 
+    // Parameters: formId: The id of the Form that is being searched
+    //             field: The field to search for
+    //
+    // Returns: The metadata field as a String Optional
+ /*    pub fun getFormDataByField(formId: UInt32, field: String): String? {
+        // Don't force a revert if the playID or field is invalid
+        if let form = SurvivalNFT.formData[formId] {
+            return form.fields[field]
+        } else {
+            return nil
+        }
+    }
+*/
 	init() {
         // Initialize the total supply
         self.totalSupply      = 0

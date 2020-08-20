@@ -1,24 +1,15 @@
 //import NonFungibleToken from 0x01cf0e2f2f715450
-import NonFungibleToken from 0x045a1763c93006ca
+import NonFungibleToken from 0xNFTStandardAddress
 
-import ExampleNFT from 0x179b6b1cb6755e31
+import ExampleNFT from 0xNFTAddress
 
 // This transaction returns an array of all the nft ids in the collection
 
-pub fun main() {
-    let acct = getAccount(0x179b6b1cb6755e31)
+pub fun main(): [UInt64] {
+    let acct = getAccount(0xtargetAddress)
     let collectionRef = acct.getCapability(/public/NFTCollection)!.borrow<&{NonFungibleToken.CollectionPublic}>()
         ?? panic("Could not borrow capability from public collection")
-    
-    log("acc 0x179b6b1cb6755e31")
     log(collectionRef.getIDs())
-
-    let acct2 = getAccount(0x01cf0e2f2f715450)
-        let collectionRef2 = acct2.getCapability(/public/NFTCollection)!.borrow<&{NonFungibleToken.CollectionPublic}>()
-            ?? panic("Could not borrow capability from public collection")
-        
-    log("acc 0x01cf0e2f2f715450")
-    log(collectionRef2.getIDs())
-
+    return collectionRef.getIDs()
 }
  

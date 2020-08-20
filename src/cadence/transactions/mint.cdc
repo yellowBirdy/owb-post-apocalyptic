@@ -1,9 +1,8 @@
 //import NonFungibleToken from 0x01cf0e2f2f715450
-import NonFungibleToken from 0x045a1763c93006ca
+import NonFungibleToken from 0xNFTStandardAddress
+import ExampleNFT from 0xNFTAddress
 
-import ExampleNFT from 0x179b6b1cb6755e31
-
-transaction {
+transaction (classId: UInt32, targetAddress: Address) {
 
     let minter: &ExampleNFT.NFTMinter
     prepare (signer: AuthAccount) {
@@ -14,7 +13,7 @@ transaction {
 
     execute {
         //let target = getAccount(0x179b6b1cb6755e31).getCapability(/public/NFTCollection)!
-        let target = getAccount(0x01cf0e2f2f715450).getCapability(/public/NFTCollection)!
+        let target = getAccount(targetAddress).getCapability(/public/NFTCollection)!
             .borrow<&{NonFungibleToken.CollectionPublic}>()!
 
         self.minter.mintNFT(recipient: target)

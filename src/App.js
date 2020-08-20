@@ -3,14 +3,10 @@ import * as sdk from "@onflow/sdk"
 import * as fcl from "@onflow/fcl"
 import * as types from "@onflow/types"
 
-import {Login, Logout, DeployStandard} from "./components/buttons"
+import {NFT, User, Flowscan} from "./components/sections"
 
-//import './App.css';
+import './App.css';
 
-
-fcl.config()
-  .put("challenge.handshake", "http://localhost:8701/flow/authenticate")
-  .put("accessNode", "http://localhost:8080")
 
 function App() {
   return (
@@ -25,9 +21,9 @@ function App() {
         </p>
       </header>
       <div className="interactions">
-        <Login />
-        <Logout />
-        <DeployStandard />
+        <User />
+        <NFT />
+        <Flowscan />
       </div>
     </div>
   );

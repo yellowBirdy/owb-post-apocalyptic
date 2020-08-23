@@ -8,9 +8,10 @@ import SurvivalNFT from 0xNFTAddress
 
 transaction {
     prepare (signer:AuthAccount) {
-        signer.save<@NonFungibleToken.Collection>(<-SurvivalNFT.createEmptyCollection(), to: /storage/NFTCollection)
-        signer.link<&{NonFungibleToken.CollectionPublic}>(/public/NFTCollection, target: /storage/NFTCollection)
+        //signer.save<@NonFungibleToken.Collection>(<-SurvivalNFT.createEmptyCollection(), to: /storage/NFTCollection)
+        signer.save<@SurvivalNFT.Collection>(<-SurvivalNFT.createEmptyCollection(), to: /storage/NFTCollection)
+        //signer.link<&{NonFungibleToken.CollectionPublic}>(/public/NFTCollection, target: /storage/NFTCollection)
+        signer.link<&{SurvivalNFT.SurvivalCollectionPublic}>(/public/NFTCollection, target: /storage/NFTCollection)
     }
-
 }
  

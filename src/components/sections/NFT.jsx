@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {DeployStandard, DeployNFT, Mint, Install} from "../buttons/transaction"
-import {ShowCollection, ShowItemData} from  "../buttons/script"
+import {ShowCollection, ShowItemData, ShowCollectionDetailed} from  "../buttons/script"
 
 export default () => <div className="NFT">
     <div className="contracts">
@@ -18,5 +18,7 @@ export default () => <div className="NFT">
         <p>Scripts</p>
         <ShowCollection />
         <ShowItemData />
+        <ShowCollectionDetailed />
+
     </div>
 </div>

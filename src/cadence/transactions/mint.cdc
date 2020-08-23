@@ -11,10 +11,11 @@ transaction (classId: UInt32, targetAddress: Address) {
             panic("Can't borrow admin, trying to mint from nonadmin account.")
     }
 
-
     execute {
         let target = getAccount(targetAddress).getCapability(/public/NFTCollection)!
-            .borrow<&{NonFungibleToken.CollectionPublic}>()!
+            .borrow<&{SurvivalNFT.SurvivalCollectionPublic}>()!
+            //.borrow<&{NonFungibleToken.CollectionPublic}>()!
+
 
         self.admin.mintNFT(recipient: target)
         log("Total Supply:")

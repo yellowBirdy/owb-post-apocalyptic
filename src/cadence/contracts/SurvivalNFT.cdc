@@ -40,6 +40,10 @@ pub contract SurvivalNFT: NonFungibleToken {
 
         pub let formId: UInt32
 
+        pub fun getFormId(): UInt32 {
+            return self.formId
+        }
+
         init(formId : UInt32) {
             pre {
                 SurvivalNFT.forms.length > Int(formId): "Can't mint an NFT from nonexisting form"
@@ -52,8 +56,20 @@ pub contract SurvivalNFT: NonFungibleToken {
             emit Minted(id: self.id, formId: self.formId)
         }
     }
+    pub resource interface SurvivalCollectionPublic /*:  add implements all standard interfaces */ {
+        pub fun deposit(token: @NonFungibleToken.NFT)
+        pub fun getIDs(): [UInt64]
+        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
+        pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
+            post {
+                result.id == withdrawID: "The ID of the withdrawn token must be the same as the requested ID"
+            }
+        }
+        pub fun borrowSurvivalToken(id: UInt64): &SurvivalNFT.NFT?
 
-    pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
+    }
+
+    pub resource Collection: SurvivalCollectionPublic, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
         // dictionary of NFT conforming tokens
         // NFT is a resource type with an `UInt64` ID field
         pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
@@ -95,6 +111,14 @@ pub contract SurvivalNFT: NonFungibleToken {
         // so that the caller can read its metadata and call its methods
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
             return &self.ownedNFTs[id] as &NonFungibleToken.NFT
+        }
+        pub fun borrowSurvivalToken(id: UInt64): &SurvivalNFT.NFT? {
+            if self.ownedNFTs[id] != nil {
+                let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
+                return ref as! &SurvivalNFT.NFT
+            } else {
+                return nil
+            }
         }
 
         destroy() {
@@ -181,7 +205,7 @@ pub contract SurvivalNFT: NonFungibleToken {
 
 		// mintNFT mints a new NFT with a new ID
 		// and deposit it in the recipients collection using their collection reference
-		pub fun mintNFT(recipient: &{NonFungibleToken.CollectionPublic}) {
+		pub fun mintNFT(recipient: &{SurvivalNFT.SurvivalCollectionPublic}) {
 
 			// create a new NFT
             var formId: UInt32 = 0

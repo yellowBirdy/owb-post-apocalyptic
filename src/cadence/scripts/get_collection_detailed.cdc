@@ -6,16 +6,18 @@ import SurvivalNFT from 0xNFTAddress
 
 pub fun main(): {UInt64: {String: String}} {
     let acct = getAccount(0xtargetAddress)
-    let collectionRef = acct.getCapability(/public/NFTCollection)!.borrow<&{NonFungibleToken.CollectionPublic}>()
+    let collectionRef = acct.getCapability(/public/NFTCollection)!.borrow<&{SurvivalNFT.SurvivalCollectionPublic}>()
         ?? panic("Could not borrow capability from public collection")
     
     let ids = collectionRef.getIDs()
-    let details: {UInt64: {String: String}} = {}
+    let details: { UInt64: {String: String} } = {}
     for id in ids {
-        details[id] = SurvivalNFT.getFormData(id)
+        let nft = collectionRef.borrowSurvivalToken(id: id)
+        log(nft)
+        details[id] = SurvivalNFT.getFormData(nft!.getFormId())
     }
 
-    log(details)
+    //log(details)
     return details
 }
  

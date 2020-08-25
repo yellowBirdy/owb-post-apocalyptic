@@ -17,6 +17,7 @@ transaction (classId: UInt32, targetAddress: Address) {
             //.borrow<&{NonFungibleToken.CollectionPublic}>()!
 
 
+
         self.admin.mintNFT(recipient: target)
         log("Total Supply:")
         log(SurvivalNFT.totalSupply)

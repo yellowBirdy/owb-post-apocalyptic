@@ -16,7 +16,7 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub var forms: @[Form]
     pub var formNameToId: {String: UInt32}
     pub var formData: [FormData]
-    pub var combinations: [Combination]
+    pub var combinations: @[Combination]
     pub var combinationNameToId: {String: UInt32}
 
 
@@ -28,7 +28,7 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub event FormCreated(id: UInt32, name: String)
     pub event FormDataCreated(id: UInt32, fields: {String: String})
     
-    pub event CombinationCreated(id: UInt32, ingredients: [UInt32], products: [UInt32])
+    pub event CombinationCreated(id: UInt32, name: String, ingredients:[UInt32], products:[UInt32], consumed:[Bool])
 
     
 
@@ -165,14 +165,17 @@ pub contract SurvivalNFT: NonFungibleToken {
 
 
 
-    pub struct Combination {
+    pub resource Combination {
 
         pub let id: UInt32
+        pub let name: String
         pub let ingredients: [UInt32] // array of consumable form ids
         pub let products: [UInt32] // array of product form ids
         //TODO: add probability distribution for the products
+        //consumed: arrey of bools refering to the ingredients
+        pub let consumed: [Bool]
 
-        init(ingredients: [UInt32], products: [UInt32]) {
+        init(name: String, ingredients: [UInt32], products: [UInt32], consumed: [Bool]) {
             pre {
                 ingredients.length > 0: "New Combination ingredients can't be empty"
                 products.length > 0: "New Combination products can't be empty"
@@ -180,10 +183,13 @@ pub contract SurvivalNFT: NonFungibleToken {
             self.id = SurvivalNFT.combinationCount + UInt32(1)
             SurvivalNFT.combinationCount = SurvivalNFT.combinationCount + UInt32(1)
 
+            self.name = name
             self.ingredients = ingredients
             self.products = products 
+            self.consumed = consumed
 
-            emit CombinationCreated(id: self.id, ingredients: self.ingredients, products: self.products)
+            emit CombinationCreated(id: self.id, name: self.name, ingredients: self.ingredients, 
+                products: self.products, consumed: self.consumed)
 
         }
     }
@@ -207,6 +213,9 @@ pub contract SurvivalNFT: NonFungibleToken {
 		// and deposit it in the recipients collection using their collection reference
 		pub fun mintNFT(recipient: &{SurvivalNFT.SurvivalCollectionPublic}) {
 
+            //TODO: prevent NFTs from combinations to be minted here without 
+            //TODO: decide if all or only some of combinations should be subject
+
 			// create a new NFT
             var formId: UInt32 = 0
 
@@ -225,9 +234,19 @@ pub contract SurvivalNFT: NonFungibleToken {
 
             }
 		}
+        pub fun mintNFTFromCombination(recipient: &{SurvivalNFT.SurvivalCollectionPublic}, 
+            ingredients: @[SurvivalNFT.NFT, combinationId: UInt32]) {
+
+            //pre: id exists, ingredients provided
+            //1. for each product: mintNFT productId
+            //2. for each consumed: destroy NFT (emit event)
+            //3. for each remaining ingredeint: deposit in recipients collection
+
+        }
         pub fun mintForm(name: String, fields: {String: String}) {
             pre {
-                //TODO: enforce unique name
+                //TODO: enforce unique name, maybe have a name indexed dict
+                //TODO: merge name with fields, add constraint on nonemby name in the fieldds
                 name.length > 0: "A form has to have a name"
                 fields.length > 0: "Form has to have at least one field"
             }
@@ -237,7 +256,16 @@ pub contract SurvivalNFT: NonFungibleToken {
 
             SurvivalNFT.forms.append(<-newForm)
         }
-        pub fun crateCombination () {
+        pub fun mintCombination(name: String, ingredients:[UInt32], products:[UInt32], consumed:[Bool]) {
+            pre {
+                //TODO: enforce unique name, maybe have a name indexed dict
+                name.length > 0: "A form has to have a name"
+                ingredients.length > 0: "Form has to have at least one ingredient"
+                products.length > 0: "Form has to have at least one product"
+            }
+            let newComb <- create Combination(name: String, ingredients:[UInt32], products:[UInt32], consumed:[Bool])
+            SurvivalNFT.combinationNameToId[name] = newComb.id
+            SurvivalNFT.combinations.append(<-newComb)
 
         }
 	}
@@ -282,7 +310,7 @@ pub contract SurvivalNFT: NonFungibleToken {
         self.forms        <- []
         self.formData     =  []
         self.formNameToId =  {}
-        self.combinations =  []
+        self.combinations <-  []
         self.combinationNameToId = {}
 
 

@@ -1,10 +1,4 @@
-// This is an example implementation of a Flow Non-Fungible Token
-// It is not part of the official standard but it assumed to be
-// very similar to how many NFTs would implement the core functionality.
-
 import NonFungibleToken from 0xNFTStandardAddress
-
-//import NonFungibleToken from 0x045a1763c93006ca
 
 pub contract SurvivalNFT: NonFungibleToken {
 
@@ -18,7 +12,8 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub var formData: [FormData]
     pub var combinations: @[Combination]
     pub var combinationNameToId: {String: UInt32}
-
+    // list of Forms which can only be instantiated via a combination
+    pub var onlyFromCombination: [UInt32] 
 
     pub event ContractInitialized()
     pub event Withdraw(id: UInt64, from: Address?)
@@ -28,9 +23,7 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub event FormCreated(id: UInt32, name: String)
     pub event FormDataCreated(id: UInt32, fields: {String: String})
     
-    pub event CombinationCreated(id: UInt32, name: String, ingredients:[UInt32], products:[UInt32], consumed:[Bool])
-
-    
+    pub event CombinationCreated(id: UInt32, name: String, ingredients:[UInt32], products:[UInt32], consumed:[Bool])  
 
     pub resource NFT: NonFungibleToken.INFT {
         pub let id: UInt64
@@ -70,15 +63,12 @@ pub contract SurvivalNFT: NonFungibleToken {
     }
 
     pub resource Collection: SurvivalCollectionPublic, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
-        // dictionary of NFT conforming tokens
-        // NFT is a resource type with an `UInt64` ID field
         pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
 
         init () {
             self.ownedNFTs <- {}
         }
 
-        // withdraw removes an NFT from the collection and moves it to the caller
         pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
             let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
 
@@ -87,13 +77,10 @@ pub contract SurvivalNFT: NonFungibleToken {
             return <-token
         }
 
-        // deposit takes a NFT and adds it to the collections dictionary
-        // and adds the ID to the id array
         pub fun deposit(token: @NonFungibleToken.NFT) {
             let token <- token as! @SurvivalNFT.NFT
 
             let id: UInt64 = token.id
-
             // add the new token to the dictionary which removes the old one
             let oldToken <- self.ownedNFTs[id] <- token
 
@@ -144,7 +131,6 @@ pub contract SurvivalNFT: NonFungibleToken {
         }
     }
 
-
     pub struct FormData {
 
         pub let id: UInt32
@@ -163,14 +149,12 @@ pub contract SurvivalNFT: NonFungibleToken {
         }
     }
 
-
-
     pub resource Combination {
 
         pub let id: UInt32
         pub let name: String
-        pub let ingredients: [UInt32] // array of consumable form ids
-        pub let products: [UInt32] // array of product form ids
+        pub let ingredients: [UInt32]
+        pub let products: [UInt32]
         //TODO: add probability distribution for the products
         //consumed: arrey of bools refering to the ingredients
         pub let consumed: [Bool]
@@ -215,25 +199,11 @@ pub contract SurvivalNFT: NonFungibleToken {
 
             //TODO: prevent NFTs from combinations to be minted here without 
             //TODO: decide if all or only some of combinations should be subject
-
-			// create a new NFT
             var formId: UInt32 = 0
-
 			var newNFT <- create NFT(formId: formId)
-
-			// deposit it in the recipient's account using their reference
 			recipient.deposit(token: <-newNFT)
-
-           
-            //double generate every 10th token on average
-            if unsafeRandom() % UInt64(10) == UInt64(0)   {
-                var newerNFT <- create NFT(formId: formId)
-
-			// deposit it in the recipient's account using their reference
-			    recipient.deposit(token: <-newerNFT)
-
-            }
 		}
+        /* 
         pub fun mintNFTFromCombination(recipient: &{SurvivalNFT.SurvivalCollectionPublic}, 
             ingredients: @[SurvivalNFT.NFT, combinationId: UInt32]) {
 
@@ -242,7 +212,7 @@ pub contract SurvivalNFT: NonFungibleToken {
             //2. for each consumed: destroy NFT (emit event)
             //3. for each remaining ingredeint: deposit in recipients collection
 
-        }
+        }*/
         pub fun mintForm(name: String, fields: {String: String}) {
             pre {
                 //TODO: enforce unique name, maybe have a name indexed dict
@@ -263,7 +233,7 @@ pub contract SurvivalNFT: NonFungibleToken {
                 ingredients.length > 0: "Form has to have at least one ingredient"
                 products.length > 0: "Form has to have at least one product"
             }
-            let newComb <- create Combination(name: String, ingredients:[UInt32], products:[UInt32], consumed:[Bool])
+            let newComb <- create Combination(name: name, ingredients: ingredients, products: products, consumed:consumed)
             SurvivalNFT.combinationNameToId[name] = newComb.id
             SurvivalNFT.combinations.append(<-newComb)
 
@@ -312,7 +282,7 @@ pub contract SurvivalNFT: NonFungibleToken {
         self.formNameToId =  {}
         self.combinations <-  []
         self.combinationNameToId = {}
-
+        self.onlyFromCombination = []
 
         // Create an Admin resource and save it to storage
         let oldAdmin <- self.account.load<@NFTAdmin>(from:/storage/NFTAdmin)
@@ -321,13 +291,38 @@ pub contract SurvivalNFT: NonFungibleToken {
 
         let admin <- create NFTAdmin()
 
-        //mint initial form
-        let fields: {String: String} = {
+        //mint initial forms
+        let fieldsOne: {String: String} = {
+            "name": "Alpha-Omega NRG Cell",
+            "version:": "MK1",
+            "category": "energy",
+            "consumable": "T",
+            "durability": "ideatic", 
+            "power_level": "8889",
+            "transferable": "F"
+            }
+        admin.mintForm(name: "Alpha-Omega NRG Cell", fields: fieldsOne )
+        let fieldsTwo: {String: String} = {
+            "name": "Alpha-Omega NRG Generator Template",
+            "version:": "MK1",
+            "category": "energy",
+            "consumable": "F",
+            "durability": "ideatic", 
+            "power_level": "8889",
+            "transferable": "F"
+            }
+        admin.mintForm(name: "Infinit-Sustain NRG Generator", fields: fieldsTwo )
+        let fieldsThree: {String: String} = {
+            "name": "Alpha-Omega NRG Generator",
+            "version:": "MK1",
+            "category": "energy",
+            "consumable": "T",
             "durability": "ideatic", 
             "power_level": "9001",
             "transferable": "F"
             }
-        admin.mintForm(name: "Alpha-Omega NRG Cell", fields: fields )
+        admin.mintForm(name: "Alpha-Omega NRG Generator", fields: fieldsThree )
+
 
         self.account.save(<-admin, to: /storage/NFTAdmin)
 

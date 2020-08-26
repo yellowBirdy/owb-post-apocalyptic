@@ -251,6 +251,7 @@ pub contract SurvivalNFT: NonFungibleToken {
         }
         return self.formData[formId].fields
     }
+  
     // getFormDataByField returns the metadata associated with a 
     //                        specific field of the metadata
     //                        Ex: field: "power_level" will return something

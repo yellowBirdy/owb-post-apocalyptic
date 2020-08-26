@@ -10,16 +10,10 @@ export default async ({fields}) => {
         query: /(0xNFTAddress)/g,
         "0xNFTAddress": NFTAddress
     })
-    /*
-    const seed_contractTx = await do_seed_contract([
-        fcl.arg(fileds["name"], types.String),
-        fcl.arg(fields, types.Dictionary)  
-    ])
-    */
     const seed_contractTx = await do_seed_contract();
     fcl.tx(seed_contractTx).subscribe(txStatus => {
         if (fcl.tx.isExecuted(txStatus)) {
-          console.log("SurvivalNFT form has been created, name: ");//+fields["name"]);
+          console.log("SurvivalNFT form has been created, name: ");
         }
     });
       

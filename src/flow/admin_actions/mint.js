@@ -1,7 +1,7 @@
 import * as fcl from "@onflow/fcl"
 import * as types from "@onflow/types"
 
-import mintUrl from "../../cadence/transactions/mint.cdc";
+import mintUrl from "../../cadence/admin_transactions/mint.cdc";
 import execute_transaction_factory from "../execute_transaction_factory"
 
 export default async ({classId = 2, targetAddress}) => {

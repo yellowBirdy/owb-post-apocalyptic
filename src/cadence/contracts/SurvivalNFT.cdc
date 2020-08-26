@@ -288,43 +288,8 @@ pub contract SurvivalNFT: NonFungibleToken {
         let oldAdmin <- self.account.load<@NFTAdmin>(from:/storage/NFTAdmin)
         destroy oldAdmin
         let admin <- create NFTAdmin()
-        //mint initial forms
-        let fieldsOne: {String: String} = {
-            "name": "Alpha-Omega NRG Cell",
-            "version:": "MK1",
-            "category": "energy",
-            "consumable": "T",
-            "durability": "ideatic", 
-            "power_level": "8889",
-            "transferable": "F"
-            }
-        admin.mintForm(name: "Alpha-Omega NRG Cell", fields: fieldsOne )
-        let fieldsTwo: {String: String} = {
-            "name": "Alpha-Omega NRG Generator Template",
-            "version:": "MK1",
-            "category": "energy",
-            "consumable": "F",
-            "durability": "ideatic", 
-            "power_level": "8889",
-            "transferable": "F"
-            }
-        admin.mintForm(name: "Infinit-Sustain NRG Generator", fields: fieldsTwo )
-        let fieldsThree: {String: String} = {
-            "name": "Alpha-Omega NRG Generator",
-            "version:": "MK1",
-            "category": "energy",
-            "consumable": "T",
-            "durability": "ideatic", 
-            "power_level": "9001",
-            "transferable": "F"
-            }
-        admin.mintForm(name: "Alpha-Omega NRG Generator", fields: fieldsThree )
-
-        admin.mintCombination(name: "Alpha-Omega NRG Generator", ingredients:[UInt32(0), UInt32(1)], products:[UInt32(2)],
-            consumed: [true, false])
-
+    
         self.account.save(<-admin, to: /storage/NFTAdmin)
-
 
         emit ContractInitialized()
 	}

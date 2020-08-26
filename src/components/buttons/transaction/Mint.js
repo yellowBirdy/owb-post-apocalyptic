@@ -1,6 +1,6 @@
 import React, {useState} from "react"
 
-import {mint} from "../../../flow/actions"
+import {mint} from "../../../flow/admin_actions"
 import {SelectAccount} from "../../subcomponents"
 
 

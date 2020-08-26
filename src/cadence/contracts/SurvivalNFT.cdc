@@ -287,10 +287,7 @@ pub contract SurvivalNFT: NonFungibleToken {
         // Create an Admin resource and save it to storage
         let oldAdmin <- self.account.load<@NFTAdmin>(from:/storage/NFTAdmin)
         destroy oldAdmin
-
-
         let admin <- create NFTAdmin()
-
         //mint initial forms
         let fieldsOne: {String: String} = {
             "name": "Alpha-Omega NRG Cell",
@@ -323,6 +320,8 @@ pub contract SurvivalNFT: NonFungibleToken {
             }
         admin.mintForm(name: "Alpha-Omega NRG Generator", fields: fieldsThree )
 
+        admin.mintCombination(name: "Alpha-Omega NRG Generator", ingredients:[UInt32(0), UInt32(1)], products:[UInt32(2)],
+            consumed: [true, false])
 
         self.account.save(<-admin, to: /storage/NFTAdmin)
 

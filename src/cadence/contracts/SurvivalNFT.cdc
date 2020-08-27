@@ -23,7 +23,7 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub event FormCreated(id: UInt32, name: String)
     pub event FormDataCreated(id: UInt32, fields: {String: String})
     
-    pub event CombinationCreated(id: UInt32, name: String, ingredients:[UInt32], products:[UInt32], consumed:[Bool])  
+    pub event CombinationCreated(id: UInt32, name: String, ingredients:[UInt32], products:[UInt32], consumed:[UInt32])  
 
     pub resource NFT: NonFungibleToken.INFT {
         pub let id: UInt64
@@ -52,16 +52,20 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub resource interface SurvivalCollectionPublic /*:  add implements all standard interfaces */ {
         pub fun deposit(token: @NonFungibleToken.NFT)
         pub fun getIDs(): [UInt64]
+        pub fun getFormIds(): {UInt64: UInt32}  //maps token ids on formIds
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
         pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
             post {
                 result.id == withdrawID: "The ID of the withdrawn token must be the same as the requested ID"
             }
         }
+        /*pub fun withdrawSurvivalToken(withdrawID: UInt64): @SurvivalNFT.NFT {
+            post {
+                result.id == withdrawID: "The ID of the withdrawn token must be the same as the requested ID"
+            }
+        }*/
         pub fun borrowSurvivalToken(id: UInt64): &SurvivalNFT.NFT?
-
     }
-
     pub resource Collection: SurvivalCollectionPublic, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
         pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
 
@@ -76,6 +80,11 @@ pub contract SurvivalNFT: NonFungibleToken {
 
             return <-token
         }
+        /*pub fun withdrawSurvivalToken(withdrawID: UInt64): @SurvivalNFT.NFT {
+            let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
+            emit Withdraw(id: token.id, from: self.owner?.address)
+            return <-token
+        }*/
 
         pub fun deposit(token: @NonFungibleToken.NFT) {
             let token <- token as! @SurvivalNFT.NFT
@@ -88,14 +97,17 @@ pub contract SurvivalNFT: NonFungibleToken {
 
             destroy oldToken
         }
-
-        // getIDs returns an array of the IDs that are in the collection
         pub fun getIDs(): [UInt64] {
             return self.ownedNFTs.keys
         }
-
-        // borrowNFT gets a reference to an NFT in the collection
-        // so that the caller can read its metadata and call its methods
+        pub fun getFormIds(): {UInt64: UInt32} {
+            let formIds: {UInt64: UInt32} = {}
+            for id in self.getIDs() {
+                let formId = self.borrowSurvivalToken(id: id)!.getFormId()
+                formIds[id] = formId
+            }
+            return formIds
+        }
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
             return &self.ownedNFTs[id] as &NonFungibleToken.NFT
         }
@@ -107,7 +119,6 @@ pub contract SurvivalNFT: NonFungibleToken {
                 return nil
             }
         }
-
         destroy() {
             destroy self.ownedNFTs
         }
@@ -116,8 +127,7 @@ pub contract SurvivalNFT: NonFungibleToken {
         //this is a "template" resource  holding reference to the FromData and 
         // acting as a template for the actual nfts
         pub let id: UInt32
-        pub let name: String
-        
+        pub let name: String 
         init(name: String, fields: {String: String}) {
             pre {
                 name.length > 0: "New Form has to have a non empty name" //TODO: enforec uniqueness
@@ -130,7 +140,6 @@ pub contract SurvivalNFT: NonFungibleToken {
             emit FormCreated(id: self.id, name: self.name)
         }
     }
-
     pub struct FormData {
 
         pub let id: UInt32
@@ -155,14 +164,13 @@ pub contract SurvivalNFT: NonFungibleToken {
         pub let name: String
         pub let ingredients: [UInt32]
         pub let products: [UInt32]
-        //TODO: add probability distribution for the products
-        //consumed: arrey of bools refering to the ingredients
-        pub let consumed: [Bool]
+        pub let consumed: [UInt32]
 
-        init(name: String, ingredients: [UInt32], products: [UInt32], consumed: [Bool]) {
+        init(name: String, ingredients: [UInt32], products: [UInt32], consumed: [UInt32]) {
             pre {
                 ingredients.length > 0: "New Combination ingredients can't be empty"
                 products.length > 0: "New Combination products can't be empty"
+                consumed.length <= ingredients.length: "Can't comsume more then available"
             }
             self.id = SurvivalNFT.combinationCount + UInt32(1)
             SurvivalNFT.combinationCount = SurvivalNFT.combinationCount + UInt32(1)
@@ -189,7 +197,7 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub resource interface NFTCombinationMinter {
         pub fun mintNFTFromCombination(
             recipient: &{SurvivalNFT.SurvivalCollectionPublic}, 
-            ingredients: @[SurvivalNFT.NFT], 
+            ingredients: @SurvivalNFT.Collection, 
             combinationId: UInt32
         )
     }
@@ -208,38 +216,33 @@ pub contract SurvivalNFT: NonFungibleToken {
 		}
          //TODO: replace array of nfts with a temporary collection
         pub fun mintNFTFromCombination(recipient: &{SurvivalNFT.SurvivalCollectionPublic}, 
-            ingredients: @[SurvivalNFT.NFT], combinationId: UInt32) {
+            ingredients: @SurvivalNFT.Collection, combinationId: UInt32) {
             //requested combination exists
-            //proper ingredients have been sent
             pre { 
                 SurvivalNFT.combinationCount > combinationId: "Trying to mint from a nonexistent combination"
-                //v
+                //  check proper ingredients against combination.ingredientsingredients.getFormIds() == 
             }
-            //get the combination TODO: refacotor to borrow, which entails moving the combinations to storage
-            let comb <- SurvivalNFT.combinations.remove(at: Int(combinationId))
+            //get the combination TODO: refacotor to borrow, which entails moving the combinations to storage ..
+            // .. in a dedicated collection
+            let comb = &SurvivalNFT.combinations[Int(combinationId)] as &SurvivalNFT.Combination
             //1. for each product: mintNFT productId and  deposit
             for productId in comb.products {
-                 self.mintNFT(recipient: recipient, formId: productId) /// TODO: refactor the mintNFT to take formId
+                 self.mintNFT(formId: productId, recipient: recipient) 
             }
-            //2. for each consumed: destroy NFT (emit event)
-            var i = 0
-            while i < ingredients.length {
-                if comb.consumed[i] == true {
-                    destroy ingredients[i]
-                    //TODO: emit destroy event
+           for inId in ingredients.getIDs() {
+                let ingredientToken <- ingredients.withdraw(withdrawID: inId) as! @SurvivalNFT.NFT
+                if comb.consumed.contains(ingredientToken.formId) { 
+                    destroy ingredientToken 
                 } else { 
                     //3. deposit remaining ingredients back into recipients collection
-                    recipient.deposit(token: <-ingredients[i])
+                    recipient.deposit(token: <-ingredientToken)
                 }
-                i = i + 1
             }
-            SurvivalNFT.combinations.insert(at: Int(combinationId), <-comb)
-
+            destroy ingredients
         }
         pub fun mintForm(name: String, fields: {String: String}) {
             pre {
-                //TODO: enforce unique name, maybe have a name indexed dict
-                //TODO: merge name with fields, add constraint on nonemby name in the fieldds
+
                 name.length > 0: "A form has to have a name"
                 fields.length > 0: "Form has to have at least one field"
             }
@@ -249,9 +252,8 @@ pub contract SurvivalNFT: NonFungibleToken {
 
             SurvivalNFT.forms.append(<-newForm)
         }
-        pub fun mintCombination(name: String, ingredients:[UInt32], products:[UInt32], consumed:[Bool]) {
+        pub fun mintCombination(name: String, ingredients:[UInt32], products:[UInt32], consumed:[UInt32]) {
             pre {
-                //TODO: enforce unique name, maybe have a name indexed dict
                 name.length > 0: "A form has to have a name"
                 ingredients.length > 0: "Form has to have at least one ingredient"
                 products.length > 0: "Form has to have at least one product"
@@ -261,38 +263,14 @@ pub contract SurvivalNFT: NonFungibleToken {
             SurvivalNFT.combinations.append(<-newComb)
 
         }
-	}
-    
-    // getFormData returns all the fields associated with a specific Form
-    // 
-    // Parameters: formId: The id of the Form that is being searched
-    //
-    // Returns: The metadata as a String to String mapping optional
+	}  
+
     pub fun getFormData(_ formId: UInt32): {String: String} {
         pre {
             formId < SurvivalNFT.formCount: "Trying to access nonexisting form "
         }
         return self.formData[formId].fields
     }
-  
-    // getFormDataByField returns the metadata associated with a 
-    //                        specific field of the metadata
-    //                        Ex: field: "power_level" will return something
-    //                        like "9001"
-    // 
-    // Parameters: formId: The id of the Form that is being searched
-    //             field: The field to search for
-    //
-    // Returns: The metadata field as a String Optional
- /*    pub fun getFormDataByField(formId: UInt32, field: String): String? {
-        // Don't force a revert if the playID or field is invalid
-        if let form = SurvivalNFT.formData[formId] {
-            return form.fields[field]
-        } else {
-            return nil
-        }
-    }
-*/
 	init() {
         // Initialize the total supply
         self.totalSupply      = 0

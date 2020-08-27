@@ -43,7 +43,7 @@ transaction () {
         self.admin.mintForm(name: "Alpha-Omega NRG Generator", fields: fieldsThree )
 
         self.admin.mintCombination(name: "Alpha-Omega NRG Generator", ingredients:[UInt32(0), UInt32(1)], products:[UInt32(2)],
-            consumed: [true, false])
+            consumed: [UInt32(0)])
         log("Forms minted, and a Combination")
     }
 

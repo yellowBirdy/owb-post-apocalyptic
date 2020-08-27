@@ -178,11 +178,6 @@ pub contract SurvivalNFT: NonFungibleToken {
         }
     }
 
-    // TODO: MintCombination function 
-    // would rquire a multisig - not possible in fcl now (doublecheck)
-    // or somekind of a marketplace maybe with a whitelist 
-
-
     // public function that anyone can call to create a new empty collection
     pub fun createEmptyCollection(): @NonFungibleToken.Collection {
         return <- create Collection()
@@ -191,28 +186,56 @@ pub contract SurvivalNFT: NonFungibleToken {
     // Resource that an admin or something similar would own to be
     // able to mint new NFTs
     //
-	pub resource NFTAdmin {
+    pub resource interface NFTCombinationMinter {
+        pub fun mintNFTFromCombination(
+            recipient: &{SurvivalNFT.SurvivalCollectionPublic}, 
+            ingredients: @[SurvivalNFT.NFT], 
+            combinationId: UInt32
+        )
+    }
+	pub resource NFTAdmin: NFTCombinationMinter {
 
 		// mintNFT mints a new NFT with a new ID
 		// and deposit it in the recipients collection using their collection reference
-		pub fun mintNFT(recipient: &{SurvivalNFT.SurvivalCollectionPublic}) {
-
+		pub fun mintNFT(formId: UInt32, recipient: &{SurvivalNFT.SurvivalCollectionPublic}) {
+            pre {
+                formId < SurvivalNFT.formCount: "Trying to mint from a nonexistent form"
+            }
             //TODO: prevent NFTs from combinations to be minted here without 
             //TODO: decide if all or only some of combinations should be subject
-            var formId: UInt32 = 0
 			var newNFT <- create NFT(formId: formId)
 			recipient.deposit(token: <-newNFT)
 		}
-        /* 
+         //TODO: replace array of nfts with a temporary collection
         pub fun mintNFTFromCombination(recipient: &{SurvivalNFT.SurvivalCollectionPublic}, 
-            ingredients: @[SurvivalNFT.NFT, combinationId: UInt32]) {
-
-            //pre: id exists, ingredients provided
-            //1. for each product: mintNFT productId
+            ingredients: @[SurvivalNFT.NFT], combinationId: UInt32) {
+            //requested combination exists
+            //proper ingredients have been sent
+            pre { 
+                SurvivalNFT.combinationCount > combinationId: "Trying to mint from a nonexistent combination"
+                //v
+            }
+            //get the combination TODO: refacotor to borrow, which entails moving the combinations to storage
+            let comb <- SurvivalNFT.combinations.remove(at: Int(combinationId))
+            //1. for each product: mintNFT productId and  deposit
+            for productId in comb.products {
+                 self.mintNFT(recipient: recipient, formId: productId) /// TODO: refactor the mintNFT to take formId
+            }
             //2. for each consumed: destroy NFT (emit event)
-            //3. for each remaining ingredeint: deposit in recipients collection
+            var i = 0
+            while i < ingredients.length {
+                if comb.consumed[i] == true {
+                    destroy ingredients[i]
+                    //TODO: emit destroy event
+                } else { 
+                    //3. deposit remaining ingredients back into recipients collection
+                    recipient.deposit(token: <-ingredients[i])
+                }
+                i = i + 1
+            }
+            SurvivalNFT.combinations.insert(at: Int(combinationId), <-comb)
 
-        }*/
+        }
         pub fun mintForm(name: String, fields: {String: String}) {
             pre {
                 //TODO: enforce unique name, maybe have a name indexed dict
@@ -291,6 +314,7 @@ pub contract SurvivalNFT: NonFungibleToken {
         let admin <- create NFTAdmin()
     
         self.account.save(<-admin, to: /storage/NFTAdmin)
+        self.account.link<&{SurvivalNFT.NFTCombinationMinter}>(/public/NFTCombinationMinter , target:/storage/NFTAdmin)
 
         emit ContractInitialized()
 	}

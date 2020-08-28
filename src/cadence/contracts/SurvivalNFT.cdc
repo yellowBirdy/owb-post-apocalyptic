@@ -54,16 +54,6 @@ pub contract SurvivalNFT: NonFungibleToken {
         pub fun getIDs(): [UInt64]
         pub fun getFormIds(): {UInt64: UInt32}  //maps token ids on formIds
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
-        pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
-            post {
-                result.id == withdrawID: "The ID of the withdrawn token must be the same as the requested ID"
-            }
-        }
-        /*pub fun withdrawSurvivalToken(withdrawID: UInt64): @SurvivalNFT.NFT {
-            post {
-                result.id == withdrawID: "The ID of the withdrawn token must be the same as the requested ID"
-            }
-        }*/
         pub fun borrowSurvivalToken(id: UInt64): &SurvivalNFT.NFT?
     }
     pub resource Collection: SurvivalCollectionPublic, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
@@ -215,8 +205,8 @@ pub contract SurvivalNFT: NonFungibleToken {
 			recipient.deposit(token: <-newNFT)
 		}
          //TODO: replace array of nfts with a temporary collection
-        pub fun mintNFTFromCombination(recipient: &{SurvivalNFT.SurvivalCollectionPublic}, 
-            ingredients: @SurvivalNFT.Collection, combinationId: UInt32) {
+        pub fun mintNFTFromCombination(combinationId: UInt32, ingredients: @SurvivalNFT.Collection,
+            recipient: &{SurvivalNFT.SurvivalCollectionPublic}) {
             //requested combination exists
             pre { 
                 SurvivalNFT.combinationCount > combinationId: "Trying to mint from a nonexistent combination"

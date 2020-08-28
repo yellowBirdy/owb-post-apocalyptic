@@ -10,7 +10,7 @@ export default async ({formId = 0, targetAddress}) => {
     
     const mintTx = await do_mint([
         fcl.arg(formId, types.UInt32),
-        fcl.arg(targetAddress, types.Address), //TODO: pass targetAddress here
+        fcl.arg(targetAddress, types.Address), 
     ])
     fcl.tx(mintTx).subscribe(txStatus => {
         if (fcl.tx.isExecuted(txStatus)) {

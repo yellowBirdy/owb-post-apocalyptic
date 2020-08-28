@@ -224,7 +224,7 @@ pub contract SurvivalNFT: NonFungibleToken {
             }
             //get the combination TODO: refacotor to borrow, which entails moving the combinations to storage ..
             // .. in a dedicated collection
-            let comb = &SurvivalNFT.combinations[Int(combinationId)] as &SurvivalNFT.Combination
+            let comb = &SurvivalNFT.combinations[combinationId] as &SurvivalNFT.Combination
             //1. for each product: mintNFT productId and  deposit
             for productId in comb.products {
                  self.mintNFT(formId: productId, recipient: recipient) 

@@ -2,7 +2,7 @@
 import NonFungibleToken from 0xNFTStandardAddress
 import SurvivalNFT from 0xNFTAddress
 
-transaction (classId: UInt32, targetAddress: Address) {
+transaction (formId: UInt32, targetAddress: Address) {
 
     let admin: &SurvivalNFT.NFTAdmin
     prepare (signer: AuthAccount) {
@@ -18,7 +18,7 @@ transaction (classId: UInt32, targetAddress: Address) {
 
 
 
-        self.admin.mintNFT(recipient: target)
+        self.admin.mintNFT(formId: formId, recipient: target)
         log("Total Supply:")
         log(SurvivalNFT.totalSupply)
     }

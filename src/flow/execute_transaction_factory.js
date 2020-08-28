@@ -15,7 +15,7 @@ export default async (url, match) => {
         fcl.proposer(authorization),
         fcl.payer(authorization),
         fcl.authorizations([authorization]),
-        fcl.limit(100)
+        fcl.limit(200)
       ],
       {
         node: "http://localhost:8080"

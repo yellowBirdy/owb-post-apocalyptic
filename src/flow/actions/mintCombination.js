@@ -12,7 +12,7 @@ export default async ({combinationId = 0, ingredientIds, adminAddress = NFTAddre
     
     const mintTx = await do_mint([
         fcl.arg(combinationId, types.UInt32),
-        fcl.arg(ingredientIds, types.Array),
+       // fcl.arg(ingredientIds, types.Array),
         fcl.arg(adminAddress, types.Address)
     ])
     fcl.tx(mintTx).subscribe(txStatus => {

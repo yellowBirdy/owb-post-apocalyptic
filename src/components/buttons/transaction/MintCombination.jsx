@@ -1,7 +1,6 @@
 import React, {useState} from "react"
 
-import {mint} from "../../../flow/admin_actions"
-import {SelectAccount} from "../../subcomponents"
+import {mintCombination} from "../../../flow/actions"
 
 
 export default () => {
@@ -11,7 +10,7 @@ export default () => {
 
     const isNumber = v=>!Number.isNaN(v)
     const mintSelected = async () => {
-        mint({combinationId, ingredientIds: ingredientIds.split(",").map(Number).filter(isNumber)});
+        mintCombination({combinationId, ingredientIds: ingredientIds.split(",").map(Number).filter(isNumber)});
     }
     //TODO: form selector should be dropdownish with form names as labels ..
     // .. form names and ids shold be read from chain by enchanced getCombinationData

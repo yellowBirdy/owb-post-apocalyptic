@@ -1,13 +1,13 @@
 import NonFungibleToken from 0xNFTStandardAddress
 import SurvivalNFT from 0xNFTAddress
 
-transaction (combinationId: UInt32/* , ingredientIds: [UInt64]*/ ,adminAddress: Address) {
+transaction (combinationId: UInt32 , ingredientIds: [UInt64] ,adminAddress: Address) {
     
     let ingredients: @SurvivalNFT.Collection
     let myReceiver: &{SurvivalNFT.SurvivalCollectionPublic}
     prepare (signer: AuthAccount) {
         // check if admin account
-        let ingredientIds = [UInt64(0), UInt64(1)]
+        //let ingredientIds = [UInt64(3), UInt64(1)]
         self.ingredients <- SurvivalNFT.createEmptyCollection() as! @SurvivalNFT.Collection
        // let myCollection = signer.borrow<&SurvivalNFT.Collection>(from: /storage/NFTCollection)!
         let myCollection = signer.borrow<&NonFungibleToken.Collection>(from: /storage/NFTCollection)!

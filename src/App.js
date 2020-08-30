@@ -1,16 +1,23 @@
 import React from 'react';
-import * as sdk from "@onflow/sdk"
-import * as fcl from "@onflow/fcl"
-import * as types from "@onflow/types"
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route
+} from "react-router-dom"
 
-import {NFT, User, Flowscan} from "./components/sections"
 
+import {Nav} from "./components/subcomponents"
+import {Sandbox, Play} from "./pages"
+
+import 'semantic-ui-css/semantic.min.css'
 import './App.css';
 
 
 function App() {
   return (
+    <Router>
     <div className="App">
+      <Nav />
       <header className="App-header">
         <p>
           You wake up on a makeshift bed at the wall of your bunker with an unesy feeling in your gut.
@@ -20,12 +27,16 @@ function App() {
           Brace yourself. 
         </p>
       </header>
-      <div className="interactions">
-        <User />
-        <NFT />
-        <Flowscan />
-      </div>
+      <Switch>
+        <Route path="/sandbox">
+          <Sandbox />
+        </Route> 
+        <Route path="/">
+          <Play />
+        </Route>
+      </Switch>
     </div>
+    </Router>
   );
 }
 

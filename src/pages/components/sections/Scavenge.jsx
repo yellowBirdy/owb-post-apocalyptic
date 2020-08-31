@@ -13,8 +13,8 @@ export default ({forms}) => {
         setTimeout(()=>{
             setOnMission(false)
             alert(`Mission successful!
-            received: ${forms[0].name}`) 
-            setLoot([forms[0]])
+            received: ${forms[0].name}, ${forms[3].name}`) 
+            setLoot([forms[0],forms[3]])
         }, 2000)
     }
     
@@ -57,12 +57,13 @@ export default ({forms}) => {
             <Button onClick={onClick}>Start the mission</Button>
             <p>Status: {onMission? "On Mission": "Idle"}</p>
             
-            {loot.length? loot.map(piece=>
-                <Card
-                    header={piece.name}
-                    description={Object.entries(piece).map(([key,val])=><p key={val}><b>{`${key}:  `}</b>{val}</p>)}
-                />)
-                : null}
+            {loot.length? <Card.Group>
+                    {loot.map(piece=><Card
+                        header={piece.name}
+                        description={Object.entries(piece).map(([key,val])=><p key={val}><b>{`${key}:  `}</b>{val}</p>)}
+                    />
+                )}
+                </Card.Group>   : null}
                 
         </Pane> 
     )

@@ -3,6 +3,45 @@ import { Tab, Table, Button, Card } from "semantic-ui-react"
 
 import {mintCombination} from "../../../flow/actions/"
 
+const itemsAnte = [{
+    "name": "Alpha-Omega NRG Cell",
+    "category": "energy",
+    "consumable": "T",
+    "power_level": "8889",
+    "rarity": "common",
+}, {
+    "name": "Alpha-Omega NRG Generator Template",
+    "consumable": "F",
+    "category": "energy",
+    "power_level": "8889",
+    "rarity": "common",
+},{
+    "name": "Green Lasecannon Construction Kit",
+    "category": "weapon",
+    "consumable": "T",
+    "power_level": "9001",
+    "rarity": "epic",
+}]
+const itemsPost = [{
+        "name": "Alpha-Omega NRG Generator Template",
+        "consumable": "F",
+        "category": "energy",
+        "power_level": "8889",
+        "rarity": "common",
+    },{
+        "name": "Green Lasecannon Construction Kit",
+        "category": "weapon",
+        "consumable": "T",
+        "power_level": "9001",
+        "rarity": "epic",
+    },{
+        "name": "Alpha-Omega NRG Generator",
+        "category": "energy",
+        "consumable": "T",
+        "power_level": ">9000",
+        "rarity": "common",
+}]
+
 export default ({forms}) => {
     const [combination, setCombination] = useState(null)
     const [loot, setLoot] = useState([])
@@ -34,6 +73,7 @@ export default ({forms}) => {
                         <Table.HeaderCell>Item</Table.HeaderCell>
                         <Table.HeaderCell>Category</Table.HeaderCell>
                         <Table.HeaderCell>Consumable</Table.HeaderCell>
+                        <Table.HeaderCell>Power Level</Table.HeaderCell>
                         <Table.HeaderCell>Rarity</Table.HeaderCell>
                     </Table.Row>
                 </Table.Header>

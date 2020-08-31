@@ -4,7 +4,7 @@ import { Tab, Table, Button, Card } from "semantic-ui-react"
 import {mint} from "../../../flow/admin_actions/"
 import {NFTAddress} from "../../../config" 
 
-export default () => {
+export default ({forms}) => {
     const [onMission, setOnMission] = useState(false)
     const [loot, setLoot] = useState([])
     const {Pane} = Tab
@@ -12,9 +12,10 @@ export default () => {
     const cb = () => {
         setTimeout(()=>{
             setOnMission(false)
-            alert("Mission Success!")
-            setLoot([{name: "one two three"}])
-        }, 5000)
+            alert(`Mission successful!
+            received: ${forms[0].name}`) 
+            setLoot([forms[0]])
+        }, 2000)
     }
     
 
@@ -55,7 +56,14 @@ export default () => {
             </Table>
             <Button onClick={onClick}>Start the mission</Button>
             <p>Status: {onMission? "On Mission": "Idle"}</p>
-            {loot.length? loot.map(piece=><p key={piece.name}>{piece.name}</p>): null}
+            
+            {loot.length? loot.map(piece=>
+                <Card
+                    header={piece.name}
+                    description={Object.entries(piece).map(([key,val])=><p key={val}><b>{`${key}:  `}</b>{val}</p>)}
+                />)
+                : null}
+                
         </Pane> 
     )
 }

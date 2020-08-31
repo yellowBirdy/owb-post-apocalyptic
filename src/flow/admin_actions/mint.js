@@ -14,8 +14,8 @@ export default async ({formId = 0, targetAddress, cb}) => {
     ])
     fcl.tx(mintTx).subscribe(txStatus => {
         if (fcl.tx.isExecuted(txStatus)) {
-          console.log("SurvivalNFT has been minted for: "+targetAddress);
-          if (typeof cb === "function") cb();
+            console.log("SurvivalNFT has been minted for: "+targetAddress);
+            if (typeof cb === "function") cb();
         }
     });
       

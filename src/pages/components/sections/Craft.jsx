@@ -43,6 +43,7 @@ const itemsPost = [{
 }]
 
 export default ({forms}) => {
+    const [tokens, setTokens] = useState(itemsAnte)
     const [combination, setCombination] = useState(null)
     const [loot, setLoot] = useState([])
     const {Pane} = Tab
@@ -52,13 +53,14 @@ export default ({forms}) => {
             alert(`Crafting successful!
             received: ${forms[2].name}`) 
             setLoot([forms[2]])
+            setTokens(itemsPost)
         }, 2000)
     }
     
 
     const onClick = (e)=>{
         e.preventDefault()
-        mintCombination({ingredientIds:[0,1], cb})
+        mintCombination({ingredientIds:[4,1], cb})
     }
     return (
         <Pane>
@@ -79,7 +81,15 @@ export default ({forms}) => {
                 </Table.Header>
 
                 <Table.Body>
-                <Table.Row>
+                {tokens.map(token=> <Table.Row>
+                    <Table.Cell>{token.name}</Table.Cell>
+                    <Table.Cell>{token.category}</Table.Cell>
+                    <Table.Cell>{token.consumable === "T"? "yes": "no"}</Table.Cell>
+                    <Table.Cell>{token.power_level}</Table.Cell>
+                    <Table.Cell>{token.rarity}</Table.Cell>
+                </Table.Row>
+                )}
+                {/*<Table.Row>
                     <Table.Cell>Alpha-Omega NRG Generator Template</Table.Cell>
                     <Table.Cell>energy</Table.Cell>
                     <Table.Cell>not</Table.Cell>
@@ -96,7 +106,7 @@ export default ({forms}) => {
                     <Table.Cell>weapon</Table.Cell>
                     <Table.Cell>yes</Table.Cell>
                     <Table.Cell>epic</Table.Cell>
-                </Table.Row>
+                </Table.Row>*/}
 
                 </Table.Body>
             </Table>

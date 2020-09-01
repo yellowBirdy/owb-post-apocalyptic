@@ -12,7 +12,6 @@ pub contract SurvivalNFT: NonFungibleToken {
     pub var formData: [FormData]
     pub var combinations: @[Combination]
     pub var combinationNameToId: {String: UInt32}
-    // list of Forms which can only be instantiated via a combination
     pub var onlyFromCombination: [UInt32] 
 
     pub event ContractInitialized()
@@ -71,11 +70,6 @@ pub contract SurvivalNFT: NonFungibleToken {
 
             return <-token
         }
-        /*pub fun withdrawSurvivalToken(withdrawID: UInt64): @SurvivalNFT.NFT {
-            let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
-            emit Withdraw(id: token.id, from: self.owner?.address)
-            return <-token
-        }*/
 
         pub fun deposit(token: @NonFungibleToken.NFT) {
             let token <- token as! @SurvivalNFT.NFT
@@ -116,7 +110,7 @@ pub contract SurvivalNFT: NonFungibleToken {
     }
     pub resource Form {
         //this is a "template" resource  holding reference to the FromData and 
-        // acting as a template for the actual nfts
+        // acting as a template for the actual player owned nfts
         pub let id: UInt32
         pub let name: String 
         init(name: String, fields: {String: String}) {
@@ -131,6 +125,10 @@ pub contract SurvivalNFT: NonFungibleToken {
             emit FormCreated(id: self.id, name: self.name)
         }
     }
+    /*
+    Struct below holds metadata of the Form, 
+    This needs to be redesigned to be included in the form directly
+     */
     pub struct FormData {
 
         pub let id: UInt32
@@ -148,7 +146,9 @@ pub contract SurvivalNFT: NonFungibleToken {
             emit FormDataCreated(id: self.id, fields: self.fields)
         }
     }
-
+    /*Combination is central to the crafting, it is a rasource containing the definition of the crafting process ie:
+     arrays of prducts and ingredientsm, together with whih (if any) ingredients are to be consumed in the process
+     */
     pub resource Combination {
 
         pub let id: UInt32
@@ -182,9 +182,8 @@ pub contract SurvivalNFT: NonFungibleToken {
         return <- create Collection()
     }
 
-    // Resource that an admin or something similar would own to be
-    // able to mint new NFTs
-    //
+    // Interface to the Admin Resource to allow minting by users without admin signaturs
+    // but only accordding to predefined recepies called combinations
     pub resource interface NFTCombinationMinter {
         pub fun mintNFTFromCombination(
             recipient: &{SurvivalNFT.SurvivalCollectionPublic}, 
@@ -205,7 +204,10 @@ pub contract SurvivalNFT: NonFungibleToken {
 			var newNFT <- create NFT(formId: formId)
 			recipient.deposit(token: <-newNFT)
 		}
-         //TODO: replace array of nfts with a temporary collection
+        /* The crafting function
+            It is available via the NFTCombinationMinter Interface on the admin resource which allows
+            for minting product NFTs without explicit signature from the admin account
+         */
         pub fun mintNFTFromCombination(recipient: &{SurvivalNFT.SurvivalCollectionPublic}, 
             ingredients: @SurvivalNFT.Collection, combinationId: UInt32) {
             //requested combination exists
@@ -213,8 +215,6 @@ pub contract SurvivalNFT: NonFungibleToken {
                 SurvivalNFT.combinationCount > combinationId: "Trying to mint from a nonexistent combination"
                 //  check proper ingredients against combination.ingredientsingredients.getFormIds() == 
             }
-            //get the combination TODO: refacotor to borrow, which entails moving the combinations to storage ..
-            // .. in a dedicated collection
             let comb = &SurvivalNFT.combinations[combinationId] as &SurvivalNFT.Combination
             //1. for each product: mintNFT productId and  deposit
             for productId in comb.products {
@@ -231,6 +231,7 @@ pub contract SurvivalNFT: NonFungibleToken {
             }
             destroy ingredients
         }
+        /* An admin task to creat a new item definition aka a form */
         pub fun mintForm(name: String, fields: {String: String}) {
             pre {
 
@@ -243,6 +244,7 @@ pub contract SurvivalNFT: NonFungibleToken {
 
             SurvivalNFT.forms.append(<-newForm)
         }
+        /*And admin task to create a new combination definition */
         pub fun mintCombination(name: String, ingredients:[UInt32], products:[UInt32], consumed:[UInt32]) {
             pre {
                 name.length > 0: "A form has to have a name"
@@ -283,6 +285,7 @@ pub contract SurvivalNFT: NonFungibleToken {
         let admin <- create NFTAdmin()
     
         self.account.save(<-admin, to: /storage/NFTAdmin)
+        // Expose the combination minter
         self.account.link<&{SurvivalNFT.NFTCombinationMinter}>(/public/NFTCombinationMinter , target:/storage/NFTAdmin)
 
         emit ContractInitialized()

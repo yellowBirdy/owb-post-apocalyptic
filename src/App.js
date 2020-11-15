@@ -6,6 +6,8 @@ import {
 } from "react-router-dom"
 
 import {NFT, User, Flowscan} from "./components/sections"
+import {Nav} from "./components/subcomponents"
+import {Sandbox, Play} from "./pages"
 
 import './App.css';
 

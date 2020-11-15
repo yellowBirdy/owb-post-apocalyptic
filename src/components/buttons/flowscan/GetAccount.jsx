@@ -1,12 +1,10 @@
 import React, {useState} from 'react'
-
 import {getAccData} from '../../../flow/actions'
 
 
 export default () => { 
     const [address, setAddress] = useState('')
     const [accountData, setAccountData] = useState(null)
-
 
     const fetchAccData = async () => {
         setAccountData(await getAccData(address))

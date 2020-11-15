@@ -22,6 +22,5 @@ export default () => <div className="NFT">
         <ShowItemData />
         <ShowCombinationData />
         <ShowCollectionDetailed />
-
     </div>
 </div>

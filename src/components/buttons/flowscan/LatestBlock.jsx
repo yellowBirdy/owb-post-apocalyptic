@@ -1,5 +1,4 @@
 import React, {useState} from 'react'
-
 import {getLatestBlock} from "../../../flow/actions"
 
 
